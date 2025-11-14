@@ -37,8 +37,8 @@ def test_storage_address(
         == f"{jaffle_shop_duckdb_dbfile_name}.dev.raw_customers"
     )
     assert (
-        storage_address_metas["stg_orders"].relation_identifier
-        == f"{jaffle_shop_duckdb_dbfile_name}.dev.stg_orders"
+        storage_address_metas["orders"].relation_identifier
+        == f"{jaffle_shop_duckdb_dbfile_name}.dev.orders"
     )
 
 

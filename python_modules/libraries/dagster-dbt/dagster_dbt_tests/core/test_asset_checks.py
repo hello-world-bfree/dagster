@@ -143,38 +143,6 @@ def test_asset_checks_enabled_by_default(test_asset_checks_manifest: Dict[str, A
             name="unique_orders_order_id",
             asset=AssetKey(["orders"]),
         ),
-        "stg_customers_not_null_stg_customers_customer_id": AssetCheckSpec(
-            name="not_null_stg_customers_customer_id",
-            asset=AssetKey(["stg_customers"]),
-        ),
-        "stg_customers_unique_stg_customers_customer_id": AssetCheckSpec(
-            name="unique_stg_customers_customer_id",
-            asset=AssetKey(["stg_customers"]),
-        ),
-        "stg_orders_accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned": AssetCheckSpec(
-            name="accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned",
-            asset=AssetKey(["stg_orders"]),
-        ),
-        "stg_orders_not_null_stg_orders_order_id": AssetCheckSpec(
-            name="not_null_stg_orders_order_id",
-            asset=AssetKey(["stg_orders"]),
-        ),
-        "stg_orders_unique_stg_orders_order_id": AssetCheckSpec(
-            name="unique_stg_orders_order_id",
-            asset=AssetKey(["stg_orders"]),
-        ),
-        "stg_payments_accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card": AssetCheckSpec(
-            name="accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card",
-            asset=AssetKey(["stg_payments"]),
-        ),
-        "stg_payments_not_null_stg_payments_payment_id": AssetCheckSpec(
-            name="not_null_stg_payments_payment_id",
-            asset=AssetKey(["stg_payments"]),
-        ),
-        "stg_payments_unique_stg_payments_payment_id": AssetCheckSpec(
-            name="unique_stg_payments_payment_id",
-            asset=AssetKey(["stg_payments"]),
-        ),
         "fail_tests_model_accepted_values_fail_tests_model_first_name__foo__bar__baz": AssetCheckSpec(
             name="accepted_values_fail_tests_model_first_name__foo__bar__baz",
             asset=AssetKey(["fail_tests_model"]),
@@ -443,17 +411,17 @@ def test_extra_checks(
         selection=(
             AssetSelection.assets(AssetKey(["customers"]))
             | AssetSelection.checks(
-                AssetCheckKey(AssetKey(["stg_orders"]), "unique_stg_orders_order_id")
+                AssetCheckKey(AssetKey(["orders"]), "unique_orders_order_id")
             )
         ),
         expected_dbt_selection={
             "test_dagster_asset_checks.customers",
-            "test_dagster_asset_checks.staging.unique_stg_orders_order_id",
+            "test_dagster_asset_checks.unique_orders_order_id",
         },
     )
     assert result.success
     assert len(result.get_asset_materialization_events()) == 1
-    # 4 tests on customers, and unique_stg_orders_order_id
+    # 4 tests on customers, and unique_orders_order_id
     assert len(result.get_asset_check_evaluations()) == 5
     # no tests were excluded, so we include singular and relationship tests
     assert len(result.get_asset_observation_events()) == 6

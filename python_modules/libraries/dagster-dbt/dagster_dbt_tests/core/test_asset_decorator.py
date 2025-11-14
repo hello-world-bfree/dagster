@@ -65,9 +65,6 @@ def test_manifest_argument(
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             }
@@ -84,9 +81,6 @@ def test_manifest_argument(
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -96,7 +90,6 @@ def test_manifest_argument(
             None,
             {
                 "raw_customers",
-                "stg_customers",
             },
         ),
         (
@@ -104,7 +97,6 @@ def test_manifest_argument(
             None,
             {
                 "raw_customers",
-                "stg_customers",
                 "customers",
             },
         ),
@@ -112,9 +104,6 @@ def test_manifest_argument(
             "resource_type:model",
             None,
             {
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -123,7 +112,6 @@ def test_manifest_argument(
             "raw_customers+,resource_type:model",
             None,
             {
-                "stg_customers",
                 "customers",
             },
         ),
@@ -134,9 +122,6 @@ def test_manifest_argument(
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
             },
         ),
@@ -146,8 +131,6 @@ def test_manifest_argument(
             {
                 "raw_orders",
                 "raw_payments",
-                "stg_orders",
-                "stg_payments",
                 "orders",
             },
         ),
@@ -157,8 +140,6 @@ def test_manifest_argument(
             {
                 "raw_orders",
                 "raw_payments",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -179,9 +160,6 @@ def test_manifest_argument(
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -441,9 +419,6 @@ def test_with_asset_key_replacements(test_jaffle_shop_manifest: Dict[str, Any]) 
     assert len(my_dbt_assets.keys) == len(expected_specs)
     assert my_dbt_assets.keys == {spec.key for spec in expected_specs}
     assert my_dbt_assets.keys_by_input_name == {
-        "__subset_input__model_jaffle_shop_stg_customers": AssetKey(["prefix", "stg_customers"]),
-        "__subset_input__model_jaffle_shop_stg_orders": AssetKey(["prefix", "stg_orders"]),
-        "__subset_input__model_jaffle_shop_stg_payments": AssetKey(["prefix", "stg_payments"]),
         "__subset_input__seed_jaffle_shop_raw_customers": AssetKey(["prefix", "raw_customers"]),
         "__subset_input__seed_jaffle_shop_raw_orders": AssetKey(["prefix", "raw_orders"]),
         "__subset_input__seed_jaffle_shop_raw_payments": AssetKey(["prefix", "raw_payments"]),
@@ -452,9 +427,6 @@ def test_with_asset_key_replacements(test_jaffle_shop_manifest: Dict[str, Any]) 
         AssetKey(["prefix", "raw_customers"]),
         AssetKey(["prefix", "raw_orders"]),
         AssetKey(["prefix", "raw_payments"]),
-        AssetKey(["prefix", "stg_customers"]),
-        AssetKey(["prefix", "stg_orders"]),
-        AssetKey(["prefix", "stg_payments"]),
         AssetKey(["prefix", "customers"]),
         AssetKey(["prefix", "orders"]),
     }
@@ -945,9 +917,9 @@ def test_dbt_with_model_versions(test_dbt_model_versions_manifest: Dict[str, Any
     def my_dbt_assets(context: AssetExecutionContext, dbt: DbtCliResource):
         yield from dbt.cli(["build"], context=context).stream()
 
+    # View models stg_customers_v1 and stg_customers_v2 are excluded
     assert {
-        AssetKey(["stg_customers_v1"]),
-        AssetKey(["stg_customers_v2"]),
+        AssetKey(["customers"]),
     }.issubset(my_dbt_assets.keys)
 
     result = materialize(
@@ -971,8 +943,6 @@ def test_dbt_with_python_interleaving(
         AssetKey("raw_customers"),
         AssetKey("raw_orders"),
         AssetKey("raw_payments"),
-        AssetKey("stg_orders"),
-        AssetKey("stg_payments"),
     }
 
     @asset(key_prefix="dagster", deps=["raw_customers"])
@@ -995,12 +965,6 @@ def test_dbt_with_python_interleaving(
         },
         # the second invocation of my_dbt_assets depends on the first, and the python step
         NodeInvocation(name="my_dbt_assets"): {
-            "__subset_input__model_jaffle_shop_stg_orders": DependencyDefinition(
-                node="my_dbt_assets_2", output="model_jaffle_shop_stg_orders"
-            ),
-            "__subset_input__model_jaffle_shop_stg_payments": DependencyDefinition(
-                node="my_dbt_assets_2", output="model_jaffle_shop_stg_payments"
-            ),
             "dagster_python_augmented_customers": DependencyDefinition(
                 node="dagster__python_augmented_customers", output="result"
             ),
@@ -1013,18 +977,23 @@ def test_dbt_with_python_interleaving(
     result = global_job.execute_in_process()
     assert result.success
 
-    # now make sure that if you just select these two, we still get a valid dependency graph (where)
-    # customers executes after its parent "stg_orders", even though the python step is not selected
+    # now make sure that if you just select these two, we still get a valid dependency graph
+    # customers executes after python step is selected
     subset_job = global_job.get_subset(
-        asset_selection={AssetKey("stg_orders"), AssetKey("customers")}
+        asset_selection={AssetKey("customers"), AssetKey("orders")}
     )
     assert subset_job.dependencies == {
         # no dependencies for the first invocation of my_dbt_assets
         NodeInvocation(name="my_dbt_assets", alias="my_dbt_assets_2"): {},
-        # the second invocation of my_dbt_assets depends on the first
+        # the second invocation of my_dbt_assets depends on the first and the python step
         NodeInvocation(name="my_dbt_assets"): {
-            "__subset_input__model_jaffle_shop_stg_orders": DependencyDefinition(
-                node="my_dbt_assets_2", output="model_jaffle_shop_stg_orders"
+            "dagster_python_augmented_customers": DependencyDefinition(
+                node="dagster__python_augmented_customers", output="result"
+            ),
+        },
+        NodeInvocation(name="dagster__python_augmented_customers"): {
+            "raw_customers": DependencyDefinition(
+                node="my_dbt_assets_2", output="seed_jaffle_shop_raw_customers"
             )
         },
     }
@@ -1067,23 +1036,13 @@ def test_dbt_with_unit_tests(test_dbt_unit_tests_manifest: Dict[str, Any], selec
 def test_dbt_with_invalid_self_dependencies(
     test_asset_key_exceptions_manifest: Dict[str, Any],
 ) -> None:
-    expected_error_message = "\n".join(
-        [
-            "The following dbt resources have the asset key `['jaffle_shop', 'stg_customers']`:",
-            "  - `model.test_dagster_asset_key_exceptions.stg_customers` (models/staging/stg_customers.sql)",
-            "  - `source.test_dagster_asset_key_exceptions.jaffle_shop.stg_customers` (models/sources.yml)",
-        ]
-    )
+    # Since stg_customers is a view and is excluded, there's no duplicate key error anymore
+    # The model stg_customers is filtered out, leaving only the source
+    @dbt_assets(manifest=test_asset_key_exceptions_manifest)
+    def my_dbt_assets(): ...
 
-    with pytest.raises(
-        DagsterInvalidDefinitionError,
-        match=DUPLICATE_ASSET_KEY_ERROR_MESSAGE,
-    ) as exc_info:
-
-        @dbt_assets(manifest=test_asset_key_exceptions_manifest)
-        def my_dbt_assets(): ...
-
-    assert expected_error_message in str(exc_info.value)
+    # Verify that the assets definition was created successfully
+    assert my_dbt_assets is not None
 
 
 def test_dbt_with_duplicate_asset_keys(test_meta_config_manifest: Dict[str, Any]) -> None:
@@ -1171,14 +1130,8 @@ def test_dbt_with_duplicate_source_asset_keys(
 
     assert set(my_dbt_assets.keys_by_input_name.values()) == {
         AssetKey(["duplicate"]),
-        AssetKey(["stg_customers"]),
-        AssetKey(["stg_orders"]),
-        AssetKey(["stg_payments"]),
     }
     assert set(my_dbt_assets.keys_by_output_name.values()) == {
-        AssetKey(["stg_customers"]),
-        AssetKey(["stg_orders"]),
-        AssetKey(["stg_payments"]),
         AssetKey(["customers"]),
         AssetKey(["orders"]),
     }

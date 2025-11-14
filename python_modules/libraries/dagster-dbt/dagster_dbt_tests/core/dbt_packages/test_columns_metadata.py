@@ -247,38 +247,12 @@ EXPECTED_COLUMN_LINEAGE_FOR_METADATA_PROJECT = {
     AssetKey(["raw_customers"]): None,
     AssetKey(["raw_payments"]): None,
     AssetKey(["raw_orders"]): None,
-    AssetKey(["stg_payments"]): TableColumnLineage(
+    # Staging models (stg_payments, stg_customers, stg_orders) are views and excluded
+    AssetKey(["orders"]): TableColumnLineage(
         deps_by_column={
-            "payment_id": [TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="id")],
             "order_id": [
-                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="order_id")
+                TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="id")
             ],
-            "payment_method": [
-                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="payment_method")
-            ],
-            "amount": [TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount")],
-        }
-    ),
-    AssetKey(["stg_customers"]): TableColumnLineage(
-        deps_by_column={
-            "customer_id": [
-                TableColumnDep(asset_key=AssetKey(["raw_source_customers"]), column_name="id")
-            ],
-            "first_name": [
-                TableColumnDep(
-                    asset_key=AssetKey(["raw_source_customers"]), column_name="first_name"
-                )
-            ],
-            "last_name": [
-                TableColumnDep(
-                    asset_key=AssetKey(["raw_source_customers"]), column_name="last_name"
-                )
-            ],
-        }
-    ),
-    AssetKey(["stg_orders"]): TableColumnLineage(
-        deps_by_column={
-            "order_id": [TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="id")],
             "customer_id": [
                 TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="user_id")
             ],
@@ -286,38 +260,24 @@ EXPECTED_COLUMN_LINEAGE_FOR_METADATA_PROJECT = {
                 TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="order_date")
             ],
             "status": [TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="status")],
-        }
-    ),
-    AssetKey(["orders"]): TableColumnLineage(
-        deps_by_column={
-            "order_id": [
-                TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="order_id")
-            ],
-            "customer_id": [
-                TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="customer_id")
-            ],
-            "order_date": [
-                TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="order_date")
-            ],
-            "status": [TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="status")],
             "credit_card_amount": [
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="amount"),
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="payment_method"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="payment_method"),
             ],
             "coupon_amount": [
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="amount"),
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="payment_method"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="payment_method"),
             ],
             "bank_transfer_amount": [
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="amount"),
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="payment_method"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="payment_method"),
             ],
             "gift_card_amount": [
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="amount"),
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="payment_method"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="payment_method"),
             ],
             "amount": [
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="amount"),
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount"),
             ],
         }
     ),
@@ -337,25 +297,25 @@ EXPECTED_COLUMN_LINEAGE_FOR_METADATA_PROJECT = {
     AssetKey(["customers"]): TableColumnLineage(
         deps_by_column={
             "customer_id": [
-                TableColumnDep(asset_key=AssetKey(["stg_customers"]), column_name="customer_id")
+                TableColumnDep(asset_key=AssetKey(["raw_source_customers"]), column_name="id")
             ],
             "first_name": [
-                TableColumnDep(asset_key=AssetKey(["stg_customers"]), column_name="first_name")
+                TableColumnDep(asset_key=AssetKey(["raw_source_customers"]), column_name="first_name")
             ],
             "last_name": [
-                TableColumnDep(asset_key=AssetKey(["stg_customers"]), column_name="last_name")
+                TableColumnDep(asset_key=AssetKey(["raw_source_customers"]), column_name="last_name")
             ],
             "first_order": [
-                TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="order_date")
+                TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="order_date")
             ],
             "most_recent_order": [
-                TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="order_date")
+                TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="order_date")
             ],
             "number_of_orders": [
-                TableColumnDep(asset_key=AssetKey(["stg_orders"]), column_name="order_id")
+                TableColumnDep(asset_key=AssetKey(["raw_orders"]), column_name="id")
             ],
             "customer_lifetime_value": [
-                TableColumnDep(asset_key=AssetKey(["stg_payments"]), column_name="amount")
+                TableColumnDep(asset_key=AssetKey(["raw_payments"]), column_name="amount")
             ],
         }
     ),
@@ -503,14 +463,12 @@ def test_column_lineage_real_warehouse(
     [
         None,
         AssetKey(["raw_customers"]),
-        AssetKey(["stg_customers"]),
         AssetKey(["customers"]),
         AssetKey(["select_star_customers"]),
     ],
     ids=[
         "--select fqn:*",
         "--select raw_customers",
-        "--select stg_customers",
         "--select customers",
         "--select select_star_customers",
     ],
