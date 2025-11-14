@@ -19,9 +19,6 @@ from dagster_dbt.asset_decorator import dbt_assets
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -31,7 +28,6 @@ from dagster_dbt.asset_decorator import dbt_assets
             None,
             {
                 "raw_customers",
-                "stg_customers",
             },
         ),
         (
@@ -39,7 +35,6 @@ from dagster_dbt.asset_decorator import dbt_assets
             None,
             {
                 "raw_customers",
-                "stg_customers",
                 "customers",
             },
         ),
@@ -47,9 +42,6 @@ from dagster_dbt.asset_decorator import dbt_assets
             "resource_type:model",
             None,
             {
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -58,7 +50,6 @@ from dagster_dbt.asset_decorator import dbt_assets
             "raw_customers+,resource_type:model",
             None,
             {
-                "stg_customers",
                 "customers",
             },
         ),
@@ -69,9 +60,6 @@ from dagster_dbt.asset_decorator import dbt_assets
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
             },
         ),
@@ -81,8 +69,6 @@ from dagster_dbt.asset_decorator import dbt_assets
             {
                 "raw_orders",
                 "raw_payments",
-                "stg_orders",
-                "stg_payments",
                 "orders",
             },
         ),
@@ -92,8 +78,6 @@ from dagster_dbt.asset_decorator import dbt_assets
             {
                 "raw_orders",
                 "raw_payments",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },
@@ -114,9 +98,6 @@ from dagster_dbt.asset_decorator import dbt_assets
                 "raw_customers",
                 "raw_orders",
                 "raw_payments",
-                "stg_customers",
-                "stg_orders",
-                "stg_payments",
                 "customers",
                 "orders",
             },

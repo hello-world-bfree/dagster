@@ -379,7 +379,7 @@ def test_dbt_cli_asset_selection(
     dbt_select = " ".join(
         [
             "jaffle_shop.raw_customers",
-            "jaffle_shop.staging.stg_customers",
+            "jaffle_shop.customers",
         ]
     )
 
@@ -411,12 +411,12 @@ def test_dbt_cli_subsetted_execution(
 ) -> None:
     dbt_select = [
         "jaffle_shop.raw_customers",
-        "jaffle_shop.staging.stg_customers",
+        "jaffle_shop.customers",
     ]
     if dagster_dbt_translator.settings.enable_dbt_selection_by_name:
         dbt_select = [
             "raw_customers",
-            "stg_customers",
+            "customers",
         ]
 
     @dbt_assets(manifest=test_jaffle_shop_manifest, dagster_dbt_translator=dagster_dbt_translator)

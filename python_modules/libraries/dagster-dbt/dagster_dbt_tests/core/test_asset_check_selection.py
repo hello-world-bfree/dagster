@@ -30,9 +30,6 @@ ALL_ASSET_KEYS = {
         "raw_customers",
         "raw_orders",
         "raw_payments",
-        "stg_customers",
-        "stg_orders",
-        "stg_payments",
         "raw_fail_tests_model",
         "fail_tests_model",
     ]
@@ -63,20 +60,6 @@ ALL_CHECK_KEYS = {
             "relationships_with_duplicate_orders_ref_customers___customer_id__customer_id__ref_customers_",
         ),
         ("orders", "unique_orders_order_id"),
-        ("stg_customers", "not_null_stg_customers_customer_id"),
-        ("stg_customers", "unique_stg_customers_customer_id"),
-        (
-            "stg_orders",
-            "accepted_values_stg_orders_status__placed__shipped__completed__return_pending__returned",
-        ),
-        ("stg_orders", "not_null_stg_orders_order_id"),
-        ("stg_orders", "unique_stg_orders_order_id"),
-        (
-            "stg_payments",
-            "accepted_values_stg_payments_payment_method__credit_card__coupon__bank_transfer__gift_card",
-        ),
-        ("stg_payments", "not_null_stg_payments_payment_id"),
-        ("stg_payments", "unique_stg_payments_payment_id"),
         ("fail_tests_model", "accepted_values_fail_tests_model_first_name__foo__bar__baz"),
         ("fail_tests_model", "unique_fail_tests_model_id"),
         (
